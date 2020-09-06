@@ -1,14 +1,59 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import axios from "./axios";
+import requests from "./requests";
+import "./Banner.css";
 
 function Banner() {
-    return (
-        <header>
-            {/** title */}
-            {/** div > 2 buttons */}
-            {/** description */}
-        </header>
-    )
+  // This state will be responsible for the movie that gets selected at the top
+  const [movie, setMovie] = useState([]);
+
+  // this code runs based on a given condition
+  // leaving the [] at the end as is, means that only run when the Banner component loads
+  useEffect(() => {
+    async function fetchData() {
+      const request = await axios.get(requests.fetchNetflixOriginals);
+      setMovie(
+        request.data.results[
+          Math.floor(Math.random() * request.data.results.length - 1)
+        ]
+      );
+      return request;
+    }
+    fetchData();
+  }, []);
+
+  function truncate(str, n) {
+    return str?.length > n ? str.substr(0, n - 1) + "..." : str;
+  }
+
+  return (
+    <header
+      className="banner"
+      style={{
+        backgroundSize: "cover",
+        backgroundImage: `url(
+                "https://image.tmdb.org/t/p/original/${movie?.backdrop_path}"
+            )`,
+        backgroundPosition: "centeer center",
+      }}
+    >
+      <div className="banner__contents">
+        <h1 className="banner__title">
+          {movie?.title || movie?.name || movie?.original_name}
+        </h1>
+
+        <div className="banner__buttons">
+          <button className="banner__button">Play</button>
+          <button className="banner__button">My List</button>
+        </div>
+
+        <h1 className="banner__description">
+          {truncate(movie?.overview, 150)}
+        </h1>
+      </div>
+      <div className="banner--fadeBottom"></div>/>
+    </header>
+  );
 }
 
-export default Banner
-
+export default Banner;
